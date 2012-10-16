@@ -91,7 +91,7 @@ function restore ()
 
 function resetfirewall ()
 {
-	echo "Reset firewall"
+	#echo "Reset firewall"
 	# Reset the firewall.  
 	$IPTABLES --flush
 	$IPTABLES -t nat --flush
