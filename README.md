@@ -88,7 +88,6 @@ When visting this site at a later time, and [Certificate Patrol][3] generates a 
 certificates, **READ THIS WARNING VERY CAREFULLY** and decide what to do. When in doubt, contact your
 bank.
 
-##Links
 [1]: https://billmullins.wordpress.com/2011/07/28/secure-your-online-banking-with-a-linux-live-cd/ "Secure your online banking with a linux live cd"
 [2]: http://distro.ibiblio.org/tinycorelinux "Tiny Core Linux"
 [3]: https://addons.mozilla.org/en-us/firefox/addon/certificate-patrol/
