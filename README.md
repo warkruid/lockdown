@@ -9,7 +9,7 @@ adresses defined by you. This script blocks any and all scripts
 Originally developed on bitbucket http://bitbucket.org/enneman/lockdown
 
 ##Usage
-lockdown <primary site> <secondary site> <tertiary site>
+lockdown primary site secondary site tertiary site
 
 The primary site is the one with the loginpage. After login you may be redirected to 
 other sites. (This may take some experimentation)
