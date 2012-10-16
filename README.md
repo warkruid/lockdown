@@ -6,7 +6,7 @@ This script limits traffic from and to your computer to a set of domains/ip
 adresses defined by you. This script blocks any and all scripts  
 (javascript/java whatever) or webbugs which try to call a site outside of the ones you defined. 
 
-Originally developed on bitbucket http://bitbucket.org/enneman/lockdown
+Originally developed on bitbucket http://bitbucket.org/
 
 ##Usage
 lockdown primary site secondary site tertiary site
