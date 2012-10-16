@@ -68,12 +68,6 @@ CAT="${SUDO} $(which cat)"
 # Were to save the current state of the firewall.
 SAVEFILE="/tmp/save.fw"
 
-# pgrep equivalent.
-function pidof () 
-{ 
-	ps -Ac | egrep -i $@ | awk '{print $1}'; 
-}
-
 #
 #
 #
