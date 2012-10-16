@@ -5,7 +5,7 @@
 # Author: H. Enneman
 # Date: 07-2012
 # License: GPL 2 (See README.COPYING)
-# Usage: lockdown <url>
+# Usage: lockdown <url1> <url2> <url3>....
 # Credits: Suggestion for save-restore of firewall state by
 #          L. Sewuster.
 # 
@@ -58,13 +58,14 @@ PATH=${PATH}:/usr/sbin
 SUDO="$(which sudo)"
 
 # Try to determine the full pathnames with "which"
+#TODO make a for loop ...
 MODPROBE="${SUDO} $(which modprobe)"
 IPTABLES="${SUDO} $(which iptables)"
 IPTABLESSAVE="${SUDO} $(which iptables-save)"
 IPTABLESRESTORE="${SUDO} $(which iptables-restore)"
 CAT="${SUDO} $(which cat)"
 
-# Were to save current state of firewall.
+# Were to save the current state of the firewall.
 SAVEFILE="/tmp/save.fw"
 
 # pgrep equivalent.
@@ -73,6 +74,9 @@ function pidof ()
 	ps -Ac | egrep -i $@ | awk '{print $1}'; 
 }
 
+#
+#
+#
 function restore ()
 {
 	if [[ -f ${SAVEFILE} ]]; then
@@ -89,9 +93,11 @@ function restore ()
 	fi
 }
 
+#
+#
+#
 function resetfirewall ()
 {
-	#echo "Reset firewall"
 	# Reset the firewall.  
 	$IPTABLES --flush
 	$IPTABLES -t nat --flush
@@ -114,6 +120,7 @@ DPORTS="80,443"
 BROWSER="firefox"
 
 # Define which profile firefox has to use
+# eq PROFILE="-P banking"
 PROFILE=
 
 # Define which DNS server to use
@@ -121,7 +128,7 @@ PROFILE=
 # 
 # OpenDNS 208.67.222.222 or 208.67.220.220
 # GoogleDNS 8.8.8.8 or 8.8.4.4
-DNSSERVER="8.8.8.8"
+DNSSERVER=
 
 # if browser is firefox then check if a profile is defined
 if [[ ${BROWSER} -eq "firefox" ]]; then
@@ -182,5 +189,5 @@ done
 # for an eternity :-) 
 ${IPTABLES} -A OUTPUT -p tcp -j REJECT --reject-with tcp-reset
 
-# Start your browser (with the first argument!/site)
+# Start your browser (with the first argument/site)
 ${BROWSER} ${1}
