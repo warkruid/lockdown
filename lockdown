@@ -54,15 +54,16 @@
 # Note: Not nessecary on Puppy Linux
 #
 #
-PATH=${PATH}:/usr/sbin
+PATH=${PATH}:/usr/sbin:/sbin
 SUDO="$(which sudo)"
 
 # Try to determine the full pathnames with "which"
 #TODO make a for loop ...
+
 MODPROBE="${SUDO} $(which modprobe)"
 IPTABLES="${SUDO} $(which iptables)"
-IPTABLESSAVE="${SUDO} $(which iptables-save)"
-IPTABLESRESTORE="${SUDO} $(which iptables-restore)"
+IPTABLES-SAVE="${SUDO} $(which iptables-save)"
+IPTABLES-RESTORE="${SUDO} $(which iptables-restore)"
 CAT="${SUDO} $(which cat)"
 
 # Were to save the current state of the firewall.
@@ -75,7 +76,7 @@ function restore ()
 {
 	if [[ -f ${SAVEFILE} ]]; then
 		if [[ ! -n ${SAVEFILE} ]]; then
-			${IPTABLESRESTORE} < ${SAVEFILE}
+			${IPTABLES-RESTORE} < ${SAVEFILE}
 		else
 			resetfirewall	
 			# Set default policy to  
@@ -144,7 +145,7 @@ fi
 ${MODPROBE} ipt_conntrack
 
 # Save the current state of the firewall
-${IPTABLESSAVE} > ${SAVEFILE}
+${IPTABLES-SAVE} > ${SAVEFILE}
 
 # on exit or error restore the original firewall state
 trap "restore;exit 0" 0 
