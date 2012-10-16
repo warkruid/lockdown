@@ -63,7 +63,7 @@ SUDO="$(which sudo)"
 MODPROBE="${SUDO} $(which modprobe)"
 IPTABLES="${SUDO} $(which iptables)"
 IPTABLESSAVE="${SUDO} $(which iptables-save)"
-IPTABLES-RESTORE="${SUDO} $(which iptables-restore)"
+IPTABLESRESTORE="${SUDO} $(which iptables-restore)"
 CAT="${SUDO} $(which cat)"
 
 # Were to save the current state of the firewall.
@@ -76,7 +76,7 @@ function restore ()
 {
 	if [[ -f ${SAVEFILE} ]]; then
 		if [[ ! -n ${SAVEFILE} ]]; then
-			${IPTABLES-RESTORE} < ${SAVEFILE}
+			${IPTABLESRESTORE} < ${SAVEFILE}
 		else
 			resetfirewall	
 			# Set default policy to  
