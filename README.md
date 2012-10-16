@@ -77,7 +77,7 @@ Alternatives to [TinyCore][2] are:
 * [Knoppix][6] The granddaddy of all live CD's
 
 ##Suggestions for firefox:
-* Make a separate banking profile for firefox. ("firefox --profilemanager"
+* Make a separate banking profile for firefox. "firefox --profilemanager"
 * In the lockdown script change BROWSER="firefox" to BROWSER="firefox -P profilename"
 * Disable unneeded plugins and extensions (java,flash) in this profile
 * Install a plugin like [Certificate Patrol][3] in this profile. 
