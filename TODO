@@ -1,0 +1,5 @@
+Translate comments (done)
+Add a commandline option to call script with an url (done)
+Add a reset option (done)
+Add error trapping (partially done)
+Secure communications with DNS server of provider (Added option to use public DNS)

@@ -1,0 +1,186 @@
+#!/usr/bin/env bash
+#set -x
+#
+# Name: Lockdown
+# Author: H. Enneman
+# Date: 07-2012
+# License: GPL 2 (See README.COPYING)
+# Usage: lockdown <url>
+# Credits: Suggestion for save-restore of firewall state by
+#          L. Sewuster.
+# 
+# Description:
+# Simple script to limit ip traffic (incoming and outgoing) 
+# to a single website. (or set of websites)
+#
+# This can be usefull when you are banking online.
+#
+# Just add an alias to your .bashrc
+# with your banking site (and its related sites)
+#
+# eq. alias ing="lockdown mijn.ing.nl bankieren.mijn.ing.nl www.ing.nl"
+# 
+# Now you can type "ing" in your terminal to start an internet
+# banking session, in which the only traffic goes to/from the
+# sites you have defined.
+#
+# Or save a link to this script on your desktop and adjust the parameters
+#
+# Under puppy linux you can drag the script lockdown to the desktop
+# rightklick on the icon on the desktop, choose "Edit Item" 
+# Add "mijn.ing.nl bankieren.mijn.ing.nl www.ing.nl" to the box
+# Arguments to pass...
+#
+# When you close your browser the original firewall settings
+# will be restored.
+# 
+# Tested on: 
+# Slackware 13.37
+# rasbian (raspberry pi)
+# Puppy linux 5.3.1 & 5.3.3 (works without sudo!) Add the script
+#  to the my-applications/bin directory.
+#
+# Be safe out there!
+#
+
+
+# Make sure the commands 
+# iptables 
+# iptables-save
+# iptables-restore
+# are added to the sudoers file!!
+# Or that the user has sudo rights set to ALL:ALL
+#
+# Note: Not nessecary on Puppy Linux
+#
+#
+PATH=${PATH}:/usr/sbin
+SUDO="$(which sudo)"
+
+# Try to determine the full pathnames with "which"
+MODPROBE="${SUDO} $(which modprobe)"
+IPTABLES="${SUDO} $(which iptables)"
+IPTABLESSAVE="${SUDO} $(which iptables-save)"
+IPTABLESRESTORE="${SUDO} $(which iptables-restore)"
+CAT="${SUDO} $(which cat)"
+
+# Were to save current state of firewall.
+SAVEFILE="/tmp/save.fw"
+
+# pgrep equivalent.
+function pidof () 
+{ 
+	ps -Ac | egrep -i $@ | awk '{print $1}'; 
+}
+
+function restore ()
+{
+	if [[ -f ${SAVEFILE} ]]; then
+		if [[ ! -n ${SAVEFILE} ]]; then
+			${IPTABLESRESTORE} < ${SAVEFILE}
+		else
+			resetfirewall	
+			# Set default policy to  
+			${IPTABLES} -P INPUT   ACCEPT
+			${IPTABLES} -P OUTPUT  ACCEPT  
+			${IPTABLES} -P FORWARD ACCEPT 
+		fi
+		rm ${SAVEFILE}
+	fi
+}
+
+function resetfirewall ()
+{
+	echo "Reset firewall"
+	# Reset the firewall.  
+	$IPTABLES --flush
+	$IPTABLES -t nat --flush
+	$IPTABLES -t mangle --flush
+	$IPTABLES -t filter --flush
+
+	# Flush all user chains
+	$IPTABLES           --delete-chain
+	$IPTABLES -t nat    --delete-chain
+	$IPTABLES -t mangle --delete-chain
+}
+
+# Which ports to allow.
+# if only ssl is needed remove the port 80
+# But usually there are links to pages which
+# are not secured by ssl (documentation/help)
+DPORTS="80,443"
+
+# which browser to start
+BROWSER="firefox"
+
+# Define which profile firefox has to use
+PROFILE=
+
+# Define which DNS server to use
+# Leave empty to use your local DNS configuration
+# 
+# OpenDNS 208.67.222.222 or 208.67.220.220
+# GoogleDNS 8.8.8.8 or 8.8.4.4
+DNSSERVER="8.8.8.8"
+
+# if browser is firefox then check if a profile is defined
+if [[ ${BROWSER} -eq "firefox" ]]; then
+	if [[ ! -z ${PROFILE} ]]; then
+		${BROWER} = "${BROWSER} ${PROFILE}"
+	fi
+fi
+
+# Check if there is a browser session already open
+# If so kill it.
+# Otherwise the "ESTABLISHED" rule would still allow
+# outgoing connections to other sites... :-(
+BROWSERPID=$(pgrep ${BROWSER})
+if [[ ! -z ${BROWSERPID} ]]; then
+	kill -9 ${BROWSERPID}
+fi
+
+# Mmmmm.. this module is not always loaded?
+${MODPROBE} ipt_conntrack
+
+# Save the current state of the firewall
+${IPTABLESSAVE} > ${SAVEFILE}
+
+# on exit or error restore the original firewall state
+trap "restore;exit 0" 0 
+trap "restore;exit 1" 1 2 3 15
+
+# remove any firewall settings
+resetfirewall
+
+# Set default policy to "DROP" 
+${IPTABLES} -P INPUT   DROP
+${IPTABLES} -P OUTPUT  DROP
+${IPTABLES} -P FORWARD DROP 
+
+# All traffic on the loopback interface is allowed 
+${IPTABLES} -A INPUT  -i lo -j ACCEPT
+${IPTABLES} -A OUTPUT -o lo -j ACCEPT
+
+# if a public DNS server is defined redirect all DNS queries to that server
+# (Added this to make DNS spoofing more difficult)
+if [[ ! -z ${DNSSERVER} ]]; then
+	${IPTABLES} -t nat -A OUTPUT -o !lo -p tcp -m tcp --dport 53 -j DNAT --to-destination ${DNSSERVER}:53  
+	${IPTABLES} -t nat -A OUTPUT -o !lo -p udp -m udp --dport 53 -j DNAT --to-destination ${DNSSERVER}:53 
+fi
+
+# Allow all DNS traffic
+${IPTABLES} -A OUTPUT -p udp       --dport 53                    -j ACCEPT
+${IPTABLES} -A INPUT  -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# Read in the domains on the commandline, use the main site as the first argument.
+for DOMAIN in $@; do
+        ${IPTABLES} -A OUTPUT -p tcp  -d ${DOMAIN} --match multiport --dports ${DPORTS} -j ACCEPT
+        ${IPTABLES} -A INPUT  -m conntrack  --ctstate ESTABLISHED,RELATED      -j ACCEPT
+done
+
+# Reset connections that aren't allowed so the browser doesn't wait
+# for an eternity :-) 
+${IPTABLES} -A OUTPUT -p tcp -j REJECT --reject-with tcp-reset
+
+# Start your browser (with the first argument!/site)
+${BROWSER} ${1}
