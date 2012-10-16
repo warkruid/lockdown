@@ -16,7 +16,7 @@ other sites. (This may take some experimentation)
 
 It is probably easiest to make an alias in your .bashrc
 
-Something on the lines of: alias <bankname>="<loginsite> <sitename1> <sitename2>" 
+Something on the lines of: alias bankname="loginsite sitename1 sitename2" 
 
 After that, you just type "bankname" and your brower should start up with
 the correct site and you can only navigate within the site(s) you specfied. 
