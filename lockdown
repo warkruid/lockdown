@@ -138,7 +138,7 @@ fi
 # outgoing connections to other sites... :-(
 BROWSERPID=$(pgrep ${BROWSER})
 if [[ ! -z ${BROWSERPID} ]]; then
-	kill -9 ${BROWSERPID}
+	kill -3 ${BROWSERPID}
 fi
 
 # Mmmmm.. this module is not always loaded?
