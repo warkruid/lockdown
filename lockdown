@@ -128,7 +128,7 @@ DNSSERVER=
 # if browser is firefox then check if a profile is defined
 if [[ ${BROWSER} -eq "firefox" ]]; then
 	if [[ ! -z ${PROFILE} ]]; then
-		${BROWER} = "${BROWSER} ${PROFILE}"
+		BROWSER="${BROWSER} ${PROFILE}"
 	fi
 fi
 
