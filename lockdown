@@ -125,12 +125,6 @@ PROFILE=
 # GoogleDNS 8.8.8.8 or 8.8.4.4
 DNSSERVER=
 
-# if browser is firefox then check if a profile is defined
-if [[ ${BROWSER} -eq "firefox" ]]; then
-	if [[ ! -z ${PROFILE} ]]; then
-		BROWSER="${BROWSER} ${PROFILE}"
-	fi
-fi
 
 # Check if there is a browser session already open
 # If so kill it.
@@ -139,6 +133,13 @@ fi
 BROWSERPID=$(pgrep ${BROWSER})
 if [[ ! -z ${BROWSERPID} ]]; then
 	kill -3 ${BROWSERPID}
+fi
+
+# if browser is firefox then check if a profile is defined
+if [[ ${BROWSER} -eq "firefox" ]]; then
+	if [[ ! -z ${PROFILE} ]]; then
+		BROWSER="${BROWSER} ${PROFILE}"
+	fi
 fi
 
 # Mmmmm.. this module is not always loaded?
