@@ -49,8 +49,15 @@
 # iptables-save
 # iptables-restore
 # are added to the sudoers file!!
-# Or that the user has sudo rights set to ALL:ALL
 #
+# Or (riskier!) under the root account, 
+# 1. add a group "sudo" with the command
+# groupadd sudo
+# 2. And then add your accountname to this group with
+# usermod -g sudo <accountname>
+# 3. run command "visudo" and add
+# %sudo ALL=(ALL) NOPASSWD: ALL
+# 
 # Note: Not nessecary on Puppy Linux
 #
 #
