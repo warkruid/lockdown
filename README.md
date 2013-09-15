@@ -7,7 +7,7 @@ adresses defined by you. This script blocks any and all scripts
 (javascript/java whatever) or webbugs which try to call a site outside of the ones you defined. 
 
 ##Usage
-lockdown <primary site> <secondary site> <tertiary site>
+lockdown primarysite secondarysite tertiarysite
 
 The primary site is the one with the loginpage. After login you may be redirected to 
 other sites. (This may take some experimentation)
@@ -16,7 +16,7 @@ You can enter the complete url to the login page eq. http://mybank.com/myloginpa
 
 It is probably easiest to make an alias in your .bashrc
 
-Something on the lines of: alias <bankname>="lockdown <loginsite> <sitename1> <sitename2>" 
+Something on the lines of: alias bankname="lockdown loginsite sitename1 sitename2" 
 
 After that, you just type "bankname" and your brower should start up with
 the correct site and you can only navigate within the site(s) you specfied. 
