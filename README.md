@@ -6,17 +6,17 @@ This script limits traffic from and to your computer to a set of domains/ip
 adresses defined by you. This script blocks any and all scripts  
 (javascript/java whatever) or webbugs which try to call a site outside of the ones you defined. 
 
-Originally developed on bitbucket http://bitbucket.org/
-
 ##Usage
-lockdown primary site secondary site tertiary site
+lockdown <primary site> <secondary site> <tertiary site>
 
 The primary site is the one with the loginpage. After login you may be redirected to 
 other sites. (This may take some experimentation)
 
+You can enter the complete url to the login page eq. http://mybank.com/myloginpage
+
 It is probably easiest to make an alias in your .bashrc
 
-Something on the lines of: alias bankname="loginsite sitename1 sitename2" 
+Something on the lines of: alias <bankname>="lockdown <loginsite> <sitename1> <sitename2>" 
 
 After that, you just type "bankname" and your brower should start up with
 the correct site and you can only navigate within the site(s) you specfied. 
@@ -28,7 +28,7 @@ or be (invisibly) redirected to other sites.
 
 In my case I've added the following to my .bashrc:
 
-alias ing="mijn.ing.nl bankieren.mijn.ing.nl www.ing.nl"
+alias ing="lockdown mijn.ing.nl bankieren.mijn.ing.nl www.ing.nl"
 
 Now I only have to type "ing" in a terminal box.
 
@@ -77,8 +77,8 @@ Alternatives to [TinyCore][2] are:
 * [Knoppix][6] The granddaddy of all live CD's
 
 ##Suggestions for firefox:
-* Make a separate banking profile for firefox. "firefox --profilemanager"
-* In the lockdown script change BROWSER="firefox" to BROWSER="firefox -P profilename"
+* Make a separate banking profile for firefox. ("firefox --profilemanager"
+* In the lockdown script change BROWSER="firefox" to BROWSER="firefox -P <profilename>"
 * Disable unneeded plugins and extensions (java,flash) in this profile
 * Install a plugin like [Certificate Patrol][3] in this profile. 
 
@@ -88,6 +88,7 @@ When visting this site at a later time, and [Certificate Patrol][3] generates a 
 certificates, **READ THIS WARNING VERY CAREFULLY** and decide what to do. When in doubt, contact your
 bank.
 
+##Links
 [1]: https://billmullins.wordpress.com/2011/07/28/secure-your-online-banking-with-a-linux-live-cd/ "Secure your online banking with a linux live cd"
 [2]: http://distro.ibiblio.org/tinycorelinux "Tiny Core Linux"
 [3]: https://addons.mozilla.org/en-us/firefox/addon/certificate-patrol/

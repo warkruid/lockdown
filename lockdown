@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#set -x
+set -x
 #
 # Name: Lockdown
 # Author: H. Enneman
@@ -49,15 +49,8 @@
 # iptables-save
 # iptables-restore
 # are added to the sudoers file!!
+# Or that the user has sudo rights set to ALL:ALL
 #
-# Or (riskier!) under the root account, 
-# 1. add a group "sudo" with the command
-# groupadd sudo
-# 2. And then add your accountname to this group with
-# usermod -g sudo <accountname>
-# 3. run command "visudo" and add
-# %sudo ALL=(ALL) NOPASSWD: ALL
-# 
 # Note: Not nessecary on Puppy Linux
 #
 #
@@ -72,9 +65,12 @@ IPTABLES="${SUDO} $(which iptables)"
 IPTABLESSAVE="${SUDO} $(which iptables-save)"
 IPTABLESRESTORE="${SUDO} $(which iptables-restore)"
 CAT="${SUDO} $(which cat)"
+IFCONFIG="${SUDO} $(which ifconfig)";
 
 # Were to save the current state of the firewall.
 SAVEFILE="/tmp/save.fw"
+
+INTERFACE="eth0"
 
 #
 #
@@ -112,6 +108,15 @@ function resetfirewall ()
 	$IPTABLES -t mangle --delete-chain
 }
 
+# split a possible url in pieces
+function parse ()
+{
+	proto="$(echo $1 | grep :// | sed -e 's,^\(.*://\).*,\1,g')"
+	url="$(echo ${1/$proto/})"
+	host="$(echo ${url} | cut -d/ -f1)"
+	path="$(echo ${url} | grep / | cut -d/ -f2-)"
+}
+
 # Which ports to allow.
 # if only ssl is needed remove the port 80
 # But usually there are links to pages which
@@ -123,7 +128,7 @@ BROWSER="firefox"
 
 # Define which profile firefox has to use
 # eq PROFILE="-P banking"
-PROFILE=
+PROFILE="-P Banking"
 
 # Define which DNS server to use
 # Leave empty to use your local DNS configuration
@@ -141,6 +146,7 @@ BROWSERPID=$(pgrep ${BROWSER})
 if [[ ! -z ${BROWSERPID} ]]; then
 	kill -3 ${BROWSERPID}
 fi
+
 
 # if browser is firefox then check if a profile is defined
 if [[ ${BROWSER} -eq "firefox" ]]; then
@@ -171,6 +177,10 @@ ${IPTABLES} -P FORWARD DROP
 ${IPTABLES} -A INPUT  -i lo -j ACCEPT
 ${IPTABLES} -A OUTPUT -o lo -j ACCEPT
 
+#${IFCONFIG} ${INTERFACE} down
+#${IFCONFIG} ${INTERFACE} up
+#sleep 5
+
 # if a public DNS server is defined redirect all DNS queries to that server
 # (Added this to make DNS spoofing more difficult)
 if [[ ! -z ${DNSSERVER} ]]; then
@@ -182,9 +192,12 @@ fi
 ${IPTABLES} -A OUTPUT -p udp       --dport 53                    -j ACCEPT
 ${IPTABLES} -A INPUT  -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
-# Read in the domains on the commandline, use the main site as the first argument.
-for DOMAIN in $@; do
-        ${IPTABLES} -A OUTPUT -p tcp  -d ${DOMAIN} --match multiport --dports ${DPORTS} -j ACCEPT
+# Read in the arguments on the commandline, 
+# Parse them for the domain/hostname 
+# use the main site as the first argument.
+for ARGUMENT in $@; do
+	parse ${ARGUMENT}
+        ${IPTABLES} -A OUTPUT -p tcp  -d ${host} --match multiport --dports ${DPORTS} -j ACCEPT
         ${IPTABLES} -A INPUT  -m conntrack  --ctstate ESTABLISHED,RELATED      -j ACCEPT
 done
 
