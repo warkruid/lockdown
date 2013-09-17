@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+#set -x
 #
 # Name: Lockdown
 # Author: H. Enneman
@@ -97,15 +97,15 @@ function restore ()
 function resetfirewall ()
 {
 	# Reset the firewall.  
-	$IPTABLES --flush
-	$IPTABLES -t nat --flush
-	$IPTABLES -t mangle --flush
-	$IPTABLES -t filter --flush
+	${IPTABLES} --flush
+	${IPTABLES} -t nat --flush
+	${IPTABLES} -t mangle --flush
+	${IPTABLES} -t filter --flush
 
 	# Flush all user chains
-	$IPTABLES           --delete-chain
-	$IPTABLES -t nat    --delete-chain
-	$IPTABLES -t mangle --delete-chain
+	${IPTABLES}           --delete-chain
+	${IPTABLES} -t nat    --delete-chain
+	${IPTABLES} -t mangle --delete-chain
 }
 
 # split a possible url in pieces
@@ -127,8 +127,8 @@ DPORTS="80,443"
 BROWSER="firefox"
 
 # Define which profile firefox has to use
-# eq PROFILE="-P banking"
-PROFILE="-P Banking"
+# eq PROFILE="-P Banking"
+PROFILE=
 
 # Define which DNS server to use
 # Leave empty to use your local DNS configuration
@@ -149,7 +149,7 @@ fi
 
 
 # if browser is firefox then check if a profile is defined
-if [[ ${BROWSER} -eq "firefox" ]]; then
+if [[ ${BROWSER} = "firefox" ]]; then
 	if [[ ! -z ${PROFILE} ]]; then
 		BROWSER="${BROWSER} ${PROFILE}"
 	fi
@@ -177,9 +177,6 @@ ${IPTABLES} -P FORWARD DROP
 ${IPTABLES} -A INPUT  -i lo -j ACCEPT
 ${IPTABLES} -A OUTPUT -o lo -j ACCEPT
 
-#${IFCONFIG} ${INTERFACE} down
-#${IFCONFIG} ${INTERFACE} up
-#sleep 5
 
 # if a public DNS server is defined redirect all DNS queries to that server
 # (Added this to make DNS spoofing more difficult)
@@ -201,9 +198,14 @@ for ARGUMENT in $@; do
         ${IPTABLES} -A INPUT  -m conntrack  --ctstate ESTABLISHED,RELATED      -j ACCEPT
 done
 
-# Reset connections that aren't allowed so the browser doesn't wait
+${IPTABLES} -A INPUT -m limit --limit 15/minute -j LOG --log-level 4 --log-prefix "LOCKDOWN INCOMING BLOCKED: "
+${IPTABLES} -A OUTPUT -m limit --limit 15/minute -j LOG --log-level 4 --log-prefix "LOCKDOWN OUTGOING BLOCKED: "
+
+
+# Reset outgoing connections that aren't allowed so the browser doesn't wait
 # for an eternity :-) 
 ${IPTABLES} -A OUTPUT -p tcp -j REJECT --reject-with tcp-reset
+
 
 # Start your browser (with the first argument/site)
 ${BROWSER} ${1}
